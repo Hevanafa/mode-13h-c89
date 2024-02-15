@@ -1,10 +1,11 @@
-#include<stdio.h>
-#include<dos.h>
-#include<conio.h>
-#include<time.h>
+#include<stdio.h>  // printf
+#include<dos.h>    // REGS
+#include<conio.h>  // getch
+#include<time.h>   // time
 
-// This can be compiled with Microsoft C++ 7.0 (not Visual C++)
-// 15-02-2024
+// By Hevanafa, 15-02-2024
+// This can be compiled with Microsoft C++ 7.0 (not Visual C++).
+// Requires Large/Huge memory model to run.
 
 #define SW 320
 #define SH 200
@@ -21,7 +22,7 @@ byte activepage;  // current video screen
 byte columns = 79;
 byte screenmode = 2;
 
-byte buffer[60000];  // should be 320x200, this is less
+byte buffer[(long) SW * SH];	// 320x200
 
 void SCREEN(byte mode) {
   regs.h.ah = 0;     // set the video mode
@@ -53,20 +54,13 @@ void gotoxy(uint x, uint y) {
 }
 
 void CLS() {
-  // memset(VGA, 0, SW * SH);
-  int a, b;
-
-  for (b = 0; b < SH; b++)
-  for (a = 0; a < SW; a++)
-    // VGA[b * SW + a] = 0;
-    buffer[b * SW + a] = 0;
+  memset(buffer, 0, 64000);
 }
 
 
 void PSET(int x, int y, byte colour) {
-  if (x < 0 || x >= 320 || y < 0 || y >= 100) return;
+  if (x < 0 || x >= 320 || y < 0 || y >= 200) return;
 
-  // write directly to the video memory
   buffer[y * SW + x] = colour;
 }
 
@@ -81,19 +75,17 @@ void rect(int x, int y, int w, int h, byte colour) {
 
 
 void flush() {
-  int a;
-  for (a = 0; a < 30000; a++)
-    VGA[a] = buffer[a];
+  long size = (long)SW * SH;
+  memcpy(VGA, buffer, size);
 }
 
 
 int main() {
   int a, b, ch;
-  float gravity = 0.02;
-  float x = 50, y = 50;
-  float vx = 0, vy = 0;
+  int y = 50;
   int t;
 
+  // for FPS counter
   time_t now = time(0);
   struct tm *timeinfo = localtime(&now);
   long last_t = timeinfo->tm_sec;
@@ -105,13 +97,6 @@ int main() {
 
   while (1) {
     // update
-    y += vy;
-    vy += gravity;
-
-    if (y >= 180) {
-      vy = 0;
-    }
-
     t = (t + 1) % 24;
 
     if (last_t != time(0) % 86400) {
@@ -122,28 +107,17 @@ int main() {
       fps++;
     }
 
-    // draw
-    // CLS();
-    // rect((int) x, (int) y, 8, 8, 15);
 
+    // draw
+    CLS();
+
+    // draw the rainbow bar
     for (a = 0; a < 32; a++) {
       colour = 32 + (t + a) % 24;
-      rect(a * 10, 40, 10, 40, (byte) colour);
+      rect(a * 10, y, 10, 40, (byte) colour);
     }
 
     flush();
-
-
-
-    // gotoxy doesn't exist in MS C 7.0
-    // gotoxy(1, 1);
-    // printf("x: %d, y: %d", x, y);
-
-    //for (b = 0; b < 16; b++)
-    //for (a = 0; a < 16; a++)
-    // PSET(a, b + 30, (byte)(b * 16 + a));
-    //	rect(a * 8, (b + 2) * 8, 8, 8, (byte)(b * 16 + a));
-
 
     // based on setcurs(col, row)
     gotoxy(0, 23);
@@ -151,7 +125,7 @@ int main() {
     printf("FPS: %d", last_fps);
 
     gotoxy(0, 24);
-    printf("Esc - Exit");
+    printf("Up/Down - Move | Esc - Exit");
 
     if (kbhit()) {
       ch = getch();
@@ -160,16 +134,12 @@ int main() {
         ch = getch();
 
         switch (ch) {
-          case 72: y -= 5; break;
-          case 80: y += 5; break;
-
-          case 75: x -= 5; break;
-          case 77: x += 5; break;
-        }
+	  case 72: y -= 5; break;  // up
+	  case 80: y += 5; break;  // down
+	}
       }
 
       if (ch == 27) break;
-      if (ch == 32) vy = -2;
     }
 
     // doesn't exist on MS C 7.0
