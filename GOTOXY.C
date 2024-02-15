@@ -1,5 +1,6 @@
-#include<stdio.h>
-#include<dos.h>
+#include<stdio.h>  // printf
+#include<dos.h>    // REGS, int86
+#include<conio.h>  // getch
 
 // DOS BIOS gotoxy() demonstration
 // 15-02-2024
@@ -15,15 +16,20 @@ byte screenmode;
 void getmode() {
   regs.h.ah = 15;
   int86(0x10, &regs, &regs);
+
+  activepage = regs.h.bh;
+  screenmode = regs.h.al;
+  columns = regs.h.ah;
 }
 
+// this puts 1 char with the colour
 void color(uint colour) {
   getmode();
 
   regs.h.ah = 9;
   regs.h.bh = activepage;
   regs.x.cx = 1;
-  regs.h.al = screenmode & 7;
+  regs.h.al = ' ';
   regs.h.bl = colour;
 
   int86(0x10, &regs, &regs);
@@ -53,4 +59,5 @@ int main() {
   printf("Green");
   getch();
 
+  return 0;
 }
