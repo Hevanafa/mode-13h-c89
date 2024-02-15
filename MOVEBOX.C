@@ -143,7 +143,10 @@ int main() {
     }
 
     // doesn't exist on MS C 7.0
+    // L2029 - unresolved external
     // delay(30);
+    // L2029 - unresolved external
+    // sleep(0.015);
 
   }
 
