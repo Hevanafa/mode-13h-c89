@@ -21,7 +21,7 @@ byte activepage;  // current video screen
 byte columns = 79;
 byte screenmode = 2;
 
-byte buffer[60000];
+byte buffer[60000];  // should be 320x200, this is less
 
 void SCREEN(byte mode) {
   regs.h.ah = 0;     // set the video mode
@@ -115,11 +115,11 @@ int main() {
     t = (t + 1) % 24;
 
     if (last_t != time(0) % 86400) {
-	last_t = time(0) % 86400;
-	last_fps = fps;
-	fps = 1;
+      last_t = time(0) % 86400;
+      last_fps = fps;
+      fps = 1;
     } else {
-	fps++;
+      fps++;
     }
 
     // draw
@@ -157,22 +157,22 @@ int main() {
       ch = getch();
 
       if (ch == 0 || ch == 224) {
-	ch = getch();
+        ch = getch();
 
-	switch (ch) {
-	  case 72: y -= 5; break;
-	  case 80: y += 5; break;
+        switch (ch) {
+          case 72: y -= 5; break;
+          case 80: y += 5; break;
 
-	  case 75: x -= 5; break;
-	  case 77: x += 5; break;
-	}
+          case 75: x -= 5; break;
+          case 77: x += 5; break;
+        }
       }
 
       if (ch == 27) break;
       if (ch == 32) vy = -2;
     }
 
-	// doesn't exist on MS C 7.0
+    // doesn't exist on MS C 7.0
     // delay(30);
 
   }
