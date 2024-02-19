@@ -14,7 +14,7 @@
 typedef unsigned char byte;
 
 typedef struct {
-  byte data[];
+  byte** data;
   int w;
   int h;
 } Bitmap;
@@ -73,10 +73,10 @@ void LoadBMP(Bitmap *bitmap, char* filename) {
   h = buf[0];
   bitmap->h = h;
 
-  // Todo: different levels of indirection
-  (**bitmap->data) = malloc(h * sizeof(*bitmap->data));
+  // initialise bitmap data
+  bitmap->data = (byte**) malloc(h * sizeof(byte *));
   for (a = 0; a < h; a++)
-    bitmap->data[a] = (byte*) malloc(w * sizeof(*bitmap->data[a]));
+    bitmap->data[a] = (byte*) malloc(w * sizeof(byte));
 
   fseek(fh, 50, SEEK_SET);
   fread(buf, 1, 2, fh);
@@ -155,25 +155,25 @@ int main() {
     return 0;
   }
 
-	// Be sure to change the DIR first before loading the image
-	LoadBMP(&score_spr, "SCORESM2.BMP");
-	// DebugBMP(&score_spr);
+  // Be sure to change the DIR first before loading the image
+  LoadBMP(&score_spr, "SCORESM2.BMP");
+  // DebugBMP(&score_spr);
 
-	// start mode 13h just like in QBASIC / VBDOS
-	SCREEN(0x13);
+  // start mode 13h just like in QBASIC / VBDOS
+  SCREEN(0x13);
 
-	printf("Hello");
+  printf("Hello");
 
-	// DrawBMP(&score_spr, 10, 10 * a);
-	for (a = 0; a <= 50; a++) {
-		DrawRegion(&score_spr, (a % 10) * 6, 0, 6, 7, 10 + (a * 6), 10);
-	}
+  // DrawBMP(&score_spr, 10, 10 * a);
+  for (a = 0; a <= 50; a++) {
+    DrawRegion(&score_spr, (a % 10) * 6, 0, 6, 7, 10 + (a * 6), 10);
+  }
 
   // Stackoverflow: questions/5248915
   end = clock();
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-  // gotoxy(1, 6);
+  // Todo: gotoxy(1, 6);
   printf("%.f ms\n", time_spent * 1000);
 
   getch();
