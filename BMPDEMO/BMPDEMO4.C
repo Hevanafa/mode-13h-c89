@@ -12,6 +12,7 @@
 #define SH 200
 
 typedef unsigned char byte;
+typedef unsigned int uint;
 
 typedef struct {
   byte** data;
@@ -22,9 +23,12 @@ typedef struct {
 
 byte far *VGA = (byte far*)0xa0000000L;
 
-void SCREEN(byte mode) {
-  union REGS regs;
+union REGS regs;
+byte activepage;
+byte columns = 79;
+byte screenmode = 2;
 
+void SCREEN(byte mode) {
   regs.h.ah = 0;
   regs.h.al = mode;
 
@@ -36,6 +40,26 @@ void PIX(int x, int y, byte colour) {
   if (colour == 13) return;
 
   VGA[y * SW + x] = colour;
+}
+
+void getmode() {
+  regs.h.ah = 15;
+  int86(0x10, &regs, &regs);
+
+  activepage = regs.h.bh;
+  screenmode = regs.h.al;
+  columns = regs.h.ah;
+}
+
+void gotoxy(uint x, uint y) {
+  getmode();
+
+  regs.h.ah = 2;
+  regs.h.dl = x;
+  regs.h.dh = y;
+  regs.h.bh = activepage;
+
+  int86(0x10, &regs, &regs);
 }
 
 
@@ -173,7 +197,7 @@ int main() {
   end = clock();
   time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
-  // Todo: gotoxy(1, 6);
+  gotoxy(0, 6);
   printf("%.f ms\n", time_spent * 1000);
 
   getch();
