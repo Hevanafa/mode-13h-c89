@@ -8,7 +8,7 @@ typedef unsigned char byte;
 typedef unsigned int uint;
 
 extern byte far *VGA = (byte far*)0xa0000000L;
-extern byte buffer[23040];
+extern byte buffer[64000];
 
 // extern union REGS regs;
 extern byte activepage;

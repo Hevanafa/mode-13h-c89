@@ -7,6 +7,8 @@
 
 #include "BITMAP.H"
 
+#define USE_DELAY 0
+
 // 20-02-2024
 // Based on GBCLIKE but with the normal VGA resolution.
 
@@ -52,7 +54,7 @@ void draw_score(Bitmap* sprite, int score) {
   byte* d = digits(score);
 
   for (a = 0; a < size; a++)
-    DrawRegion(sprite,
+    draw_region(sprite,
       d[size - a - 1] * 6, 0,
       6, sprite->h,
       10 + (a * 6), 10);
@@ -63,6 +65,7 @@ void draw_score(Bitmap* sprite, int score) {
 
 int main() {
   int a, i;
+  char* s;
   Bitmap ti84;
 
   if (!file_exists("TI84.BMP")) {
@@ -78,11 +81,14 @@ int main() {
 
   for (i = 0; i <= 20; i++) {
     fill_buf(1);
-    draw_str(&ti84, itoa(i), 10, 10);
+
+    sprintf(s, "%d", i);
+    draw_str(&ti84, s, 10, 10);
 
     flush_buf();
 
-    sleep(0.01);
+    if (USE_DELAY)
+      sleep(0.01);
   }
 
   flush_buf();
