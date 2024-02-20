@@ -44,19 +44,26 @@ void CLS() {
 }
 
 void PIX(int x, int y, byte colour) {
-  if (x < 0 || x >= 320 || y < 0 || y >= 320) return;
+  if (x < 0 || x >= SW || y < 0 || y >= SH) return;
   if (colour == 13) return;
 
   buffer[(long)y * SW + x] = colour;
 }
 
-void flush_buf() {
+void fill_buf(byte colour) {
   int a;
-  // long size = (long)SW * SH;
-  for (a = 0; a < SH; a++)
-    memmove(VGA, buffer + a * SW, SW);
+  for (a = 0; a < SW * SH; a++)
+    buffer[a] = colour;
+}
 
-  // memcpy(VGA, buffer, size);
+void flush_buf() {
+  int a, b, pos;
+
+  for (b = 0; b < SH; b++)
+  for (a = 0; a < SW; a++) {
+    pos = b * SW + a;
+    VGA[(28 + b) * VGAW + 80 + a] = buffer[b * SW + a];
+  }
 }
 
 void getmode() {
@@ -99,8 +106,6 @@ void LoadBMP(Bitmap *bitmap, char* filename) {
   int pair;
 
   FILE *fh;
-
-  // free(bitmap->data);
 
   fh = fopen(filename, "rb");
 
@@ -182,7 +187,6 @@ void sleep(double s) {
 }
 
 
-
 int file_exists(char* filename) {
   FILE *file;
 
@@ -212,6 +216,11 @@ byte* digits(int num) {
   return ary;
 }
 
+void delete(void* ptr) {
+  free(ptr);
+  ptr = 0;
+}
+
 
 void draw_score(Bitmap* sprite, int score) {
   int a;
@@ -224,7 +233,7 @@ void draw_score(Bitmap* sprite, int score) {
       6, sprite->h,
       10 + (a * 6), 10);
 
-  free(d);
+  delete(d);
 }
 
 
@@ -237,14 +246,8 @@ int main() {
     return 0;
   }
 
-  //if (!file_exists("BIRD.BMP")) {
-  //  printf("BIRD.BMP doesn't exist!\n");
-  //  return 0;
-  //}
-
   // Be sure to change the DIR first before loading the image
   LoadBMP(&score_spr, "SCORESM2.BMP");
-  // LoadBMP(&bird_spr, "BIRD.BMP");
   // DebugBMP(&score_spr);
 
   // start mode 13h just like in QBASIC / VBDOS
@@ -252,7 +255,9 @@ int main() {
 
 
   // DrawBMP(&score_spr, 10, 10 * a);
-  for (i = 0; i <= 100; i++) {
+  fill_buf(1);
+
+  for (i = 0; i <= 10; i++) {
     draw_score(&score_spr, i);
 
     flush_buf();
