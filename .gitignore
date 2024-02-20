@@ -1,3 +1,6 @@
 *.OBJ
 *.EXE
 *.BAK
+
+# PWB-GENERATED FILE
+*.STS
