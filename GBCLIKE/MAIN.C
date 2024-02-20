@@ -5,7 +5,6 @@
 #include<time.h>
 #include<math.h>
 
-#include "GRAPHICS.H"
 #include "BITMAP.H"
 
 // 20-02-2024
@@ -64,13 +63,15 @@ void draw_score(Bitmap* sprite, int score) {
 
 int main() {
   int a, i;
-  Bitmap score_spr, bird_spr;
+  Bitmap score_spr;
 
   if (!file_exists("SCORESM2.BMP")) {
     printf("SCORESM2.BMP doesn't exist!\n");
     return 0;
   }
 
+  // Fixed: This caused serious disk error ??
+  // Solution: Don't forget to include the header files
   // Be sure to change the DIR first before loading the image
   LoadBMP(&score_spr, "SCORESM2.BMP");
   // DebugBMP(&score_spr);

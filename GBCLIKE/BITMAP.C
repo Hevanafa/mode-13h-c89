@@ -1,3 +1,8 @@
+#include<stdio.h>
+#include<stdlib.h>  // malloc
+
+#include "BITMAP.H"
+
 void LoadBMP(Bitmap *bitmap, char* filename) {
   byte buf[2];
   int w = 1, h = 1;

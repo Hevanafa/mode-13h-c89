@@ -9,11 +9,11 @@ SBRPACK  = sbrpack
 NMAKEBSC1  = set
 NMAKEBSC2  = nmake
 CC  = cl
-CFLAGS_G  = /AL /W2 /BATCH
+CFLAGS_G  = /AL /W2 /BATCH /FR$*.sbr
 CFLAGS_D  = /f /Od /Zi
 CFLAGS_R  = /f- /Ot /Ol /Og /Oe /Oi /Gs
 CXX  = cl
-CXXFLAGS_G  = /W2 /BATCH
+CXXFLAGS_G  = /W2 /BATCH /FR$*.sbr
 CXXFLAGS_D  = /f /Zi /Od
 CXXFLAGS_R  = /f- /Ot /Oi /Ol /Oe /Og /Gs
 MAPFILE_D  = NUL
@@ -25,10 +25,13 @@ LINKER	= link
 ILINK  = ilink
 LRF  = echo > NUL
 ILFLAGS  = /a /e
+BRFLAGS  =  /o $(PROJ).bsc
+BROWSE	= 1
+PACK_SBRS  = 1
 
-FILES  = MAIN.C
-OBJS  = MAIN.obj
-SBRS  = MAIN.sbr
+FILES  = GRAPHICS.C BITMAP.C MAIN.C
+OBJS  = GRAPHICS.obj BITMAP.obj MAIN.obj
+SBRS  = GRAPHICS.sbr BITMAP.sbr MAIN.sbr
 
 all: $(PROJ).exe
 
@@ -36,7 +39,59 @@ all: $(PROJ).exe
 .SUFFIXES:
 .SUFFIXES: .obj .sbr .c
 
-MAIN.obj : MAIN.C
+GRAPHICS.obj : GRAPHICS.C GRAPHICS.H
+!IF $(DEBUG)
+	@$(CC) @<<$(PROJ).rsp
+/c $(CFLAGS_G)
+$(CFLAGS_D) /FoGRAPHICS.obj GRAPHICS.C
+<<
+!ELSE
+	@$(CC) @<<$(PROJ).rsp
+/c $(CFLAGS_G)
+$(CFLAGS_R) /FoGRAPHICS.obj GRAPHICS.C
+<<
+!ENDIF
+
+GRAPHICS.sbr : GRAPHICS.C GRAPHICS.H
+!IF $(DEBUG)
+	@$(CC) @<<$(PROJ).rsp
+/Zs $(CFLAGS_G)
+$(CFLAGS_D) /FRGRAPHICS.sbr GRAPHICS.C
+<<
+!ELSE
+	@$(CC) @<<$(PROJ).rsp
+/Zs $(CFLAGS_G)
+$(CFLAGS_R) /FRGRAPHICS.sbr GRAPHICS.C
+<<
+!ENDIF
+
+BITMAP.obj : BITMAP.C BITMAP.H
+!IF $(DEBUG)
+	@$(CC) @<<$(PROJ).rsp
+/c $(CFLAGS_G)
+$(CFLAGS_D) /FoBITMAP.obj BITMAP.C
+<<
+!ELSE
+	@$(CC) @<<$(PROJ).rsp
+/c $(CFLAGS_G)
+$(CFLAGS_R) /FoBITMAP.obj BITMAP.C
+<<
+!ENDIF
+
+BITMAP.sbr : BITMAP.C BITMAP.H
+!IF $(DEBUG)
+	@$(CC) @<<$(PROJ).rsp
+/Zs $(CFLAGS_G)
+$(CFLAGS_D) /FRBITMAP.sbr BITMAP.C
+<<
+!ELSE
+	@$(CC) @<<$(PROJ).rsp
+/Zs $(CFLAGS_G)
+$(CFLAGS_R) /FRBITMAP.sbr BITMAP.C
+<<
+!ENDIF
+
+MAIN.obj : MAIN.C GRAPHICS.H BITMAP.H
 !IF $(DEBUG)
 	@$(CC) @<<$(PROJ).rsp
 /c $(CFLAGS_G)
@@ -49,7 +104,7 @@ $(CFLAGS_R) /FoMAIN.obj MAIN.C
 <<
 !ENDIF
 
-MAIN.sbr : MAIN.C
+MAIN.sbr : MAIN.C GRAPHICS.H BITMAP.H
 !IF $(DEBUG)
 	@$(CC) @<<$(PROJ).rsp
 /Zs $(CFLAGS_G)
@@ -69,6 +124,8 @@ $(BRFLAGS) $(SBRS)
 <<
 
 $(PROJ).exe : $(OBJS)
+	-$(NMAKEBSC1) MAKEFLAGS=
+	-$(NMAKEBSC2) $(NMFLAGS) -f $(PROJFILE) $(PROJ).bsc
 !IF $(DEBUG)
 	$(LRF) @<<$(PROJ).lrf
 $(RT_OBJS: = +^
