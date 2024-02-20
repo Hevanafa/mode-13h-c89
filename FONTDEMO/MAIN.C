@@ -1,5 +1,5 @@
 #include<dos.h>
-#include<conio.h>
+#include<conio.h>  // getch
 #include<stdio.h>
 #include<stdlib.h>
 #include<time.h>
@@ -63,28 +63,22 @@ void draw_score(Bitmap* sprite, int score) {
 
 int main() {
   int a, i;
-  Bitmap score_spr;
+  Bitmap ti84;
 
-  if (!file_exists("SCORESM2.BMP")) {
-    printf("SCORESM2.BMP doesn't exist!\n");
+  if (!file_exists("TI84.BMP")) {
+    printf("TI84.BMP doesn't exist!\n");
     return 0;
   }
 
-  // Fixed: This caused serious disk error ??
-  // Solution: Don't forget to include the header files
-  // Be sure to change the DIR first before loading the image
-  LoadBMP(&score_spr, "SCORESM2.BMP");
-  // DebugBMP(&score_spr);
+  load_bmp(&ti84, "TI84.BMP");
+  // debug_bmp(&ti84);
 
   // start mode 13h just like in QBASIC / VBDOS
   SCREEN(0x13);
 
-
-  // DrawBMP(&score_spr, 10, 10 * a);
-  fill_buf(1);
-
-  for (i = 0; i <= 10; i++) {
-    draw_score(&score_spr, i);
+  for (i = 0; i <= 20; i++) {
+    fill_buf(1);
+    draw_str(&ti84, itoa(i), 10, 10);
 
     flush_buf();
 

@@ -27,9 +27,7 @@ void PSET(int x, int y, byte colour) {
 }
 
 void fill_buf(byte colour) {
-  int a;
-  for (a = 0; a < SW * SH; a++)
-    buffer[a] = colour;
+  memset(buffer, colour, (long) SW * SH);
 }
 
 void flush_buf() {
